@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="라디오 스트리밍">
+  <meta name="theme-color" content="#0a0a14">
+  <title>클래식 · 재즈 · 팝 라디오</title>
+  <style>
+    :root {
+      --bg:            #0a0a14;
+      --surface:       #111120;
+      --card:          #181828;
+      --card-active:   #222238;
+      --accent:        #c9993a;
+      --accent-dim:    rgba(201,153,58,.18);
+      --green:         #4ade80;
+      --green-dim:     rgba(74,222,128,.14);
+      --amber:         #fbbf24;
+      --red:           #f87171;
+      --text:          #f0f0f0;
+      --sub:           #9898b8;
+      --muted:         #545470;
+      --border:        rgba(255,255,255,.07);
+      --radius:        14px;
+      --sb: env(safe-area-inset-bottom, 0px);
+      --st: env(safe-area-inset-top,    0px);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    html { background: var(--bg); }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding-bottom: calc(96px + var(--sb));
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: calc(var(--st) + 16px) 20px 14px;
+      background: rgba(10,10,20,.85);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+    }
+    .h-icon {
+      width: 42px; height: 42px;
+      border-radius: 11px;
+      background: linear-gradient(135deg,#2a1f0a,#1a1a2e);
+      border: 1px solid rgba(201,153,58,.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    header h1 { font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+    header p  { font-size: 11px; color: var(--sub); margin-top: 2px; }
+
+    /* ── SECTION ───────────────────────────────────────────── */
+    .section { margin: 22px 0 0; }
+    .section-label {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: .9px; text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 20px 8px;
+    }
+
+    /* ── STATION LIST ──────────────────────────────────────── */
+    .station-list {
+      margin: 0 14px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .station {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 13px 15px;
+      background: var(--card);
+      cursor: pointer;
+      transition: background .12s;
+      -webkit-user-select: none;
+      user-select: none;
+      position: relative;
+    }
+    .station:active    { background: var(--card-active); }
+    .station.playing   { background: linear-gradient(110deg,#111e12 0%,#181828 100%); }
+    .station.loading   { background: linear-gradient(110deg,#1a1710 0%,#181828 100%); }
+    .station.errored   { background: linear-gradient(110deg,#1e1111 0%,#181828 100%); }
+
+    /* left – flag bubble */
+    .s-flag {
+      width: 44px; height: 44px;
+      border-radius: 11px;
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      border: 1.5px solid transparent;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .station.playing .s-flag {
+      border-color: var(--green);
+      box-shadow: 0 0 12px var(--green-dim);
+    }
+    .station.loading .s-flag {
+      border-color: var(--amber);
+      box-shadow: 0 0 12px rgba(251,191,36,.15);
+    }
+    .station.errored .s-flag {
+      border-color: var(--red);
+      box-shadow: 0 0 12px rgba(248,113,113,.12);
+    }
+
+    /* middle – info */
+    .s-info { flex: 1; min-width: 0; }
+    .s-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .s-sub  {
+      font-size: 11.5px; color: var(--sub);
+      margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .s-tags {
+      display: flex; gap: 5px; margin-top: 5px;
+      flex-wrap: nowrap; overflow: hidden;
+    }
+    .tag {
+      font-size: 10px; font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: var(--surface);
+      color: var(--sub);
+      white-space: nowrap;
+      transition: background .2s, color .2s;
+    }
+    .station.playing .tag { background: var(--green-dim); color: var(--green); }
+    .station.loading .tag { background: rgba(251,191,36,.12); color: var(--amber); }
+    .station.errored .tag { background: rgba(248,113,113,.1); color: var(--red); }
+
+    .s-note {
+      font-size: 10px; color: var(--amber);
+      display: inline-flex; align-items: center; gap: 3px;
+      white-space: nowrap;
+    }
+
+    /* right – badge + play btn */
+    .s-right {
+      display: flex; flex-direction: column;
+      align-items: flex-end; gap: 7px;
+      flex-shrink: 0;
+    }
+    .q-badge {
+      font-size: 10px; font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 3px 8px; border-radius: 99px;
+    }
+    .play-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      transition: background .2s;
+    }
+    .station.playing .play-icon { background: var(--green); color: #000; }
+    .station.loading .play-icon { background: var(--amber); color: #000; }
+    .station.errored .play-icon { background: var(--red);   color: #fff; }
+
+    /* ── EQUALIZER ANIMATION ───────────────────────────────── */
+    .eq {
+      display: flex; align-items: flex-end;
+      gap: 2px; height: 14px;
+    }
+    .eq span {
+      width: 3px; border-radius: 1.5px;
+      background: currentColor;
+      animation: eq .75s ease-in-out infinite alternate;
+    }
+    .eq span:nth-child(1){ height: 35%; animation-delay: 0s; }
+    .eq span:nth-child(2){ height: 90%; animation-delay: .18s; }
+    .eq span:nth-child(3){ height: 55%; animation-delay: .32s; }
+    .eq span:nth-child(4){ height: 100%; animation-delay: .08s; }
+    @keyframes eq {
+      from { transform: scaleY(.25); }
+      to   { transform: scaleY(1); }
+    }
+
+    /* loading spinner */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── BOTTOM PLAYER BAR ─────────────────────────────────── */
+    #player-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      z-index: 40;
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 18px calc(12px + var(--sb));
+      background: rgba(14,14,26,.94);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      border-top: 1px solid var(--border);
+      transform: translateY(110%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      will-change: transform;
+    }
+    #player-bar.show { transform: translateY(0); }
+
+    .pb-art {
+      width: 46px; height: 46px;
+      border-radius: 11px;
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      border: 1.5px solid var(--green);
+      box-shadow: 0 0 14px var(--green-dim);
+    }
+    .pb-info { flex: 1; min-width: 0; }
+    .pb-name {
+      font-size: 14px; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pb-sub  { font-size: 11px; color: var(--sub); margin-top: 2px; }
+    .pb-status {
+      font-size: 11px; margin-top: 3px;
+      display: flex; align-items: center; gap: 5px;
+      min-height: 14px;
+    }
+    .pb-status.s-playing { color: var(--green); }
+    .pb-status.s-loading { color: var(--amber); }
+    .pb-status.s-error   { color: var(--red); }
+
+    .pb-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .pb-btn {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 19px;
+      background: var(--surface); color: var(--text);
+      transition: background .15s, transform .1s;
+      -webkit-appearance: none;
+    }
+    .pb-btn:active { transform: scale(.92); }
+    .pb-btn.primary {
+      background: var(--green); color: #000;
+      width: 50px; height: 50px; font-size: 22px;
+    }
+    .pb-btn.primary:active { background: #22c55e; }
+
+    /* ── TIP BOX ───────────────────────────────────────────── */
+    .tip {
+      margin: 24px 14px 0;
+      padding: 14px 16px;
+      background: var(--card);
+      border-radius: var(--radius);
+      border-left: 3px solid var(--accent);
+    }
+    .tip h3 { font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+    .tip p  { font-size: 11.5px; color: var(--sub); line-height: 1.7; }
+    .tip p + p { margin-top: 5px; }
+
+    /* ── NAV BAR ───────────────────────────────────────────── */
+    #nav-bar {
+      position: sticky;
+      top: 0; /* JS sets exact value after header mounts */
+      z-index: 25;
+      display: flex;
+      gap: 7px;
+      padding: 9px 14px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      background: rgba(8,8,18,.9);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+      -webkit-overflow-scrolling: touch;
+    }
+    #nav-bar::-webkit-scrollbar { display: none; }
+
+    .nav-pill {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 13px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--sub);
+      transition: background .15s, color .15s, border-color .15s, transform .1s;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-appearance: none;
+    }
+    .nav-pill:active { transform: scale(.93); }
+
+    /* category active colours */
+    .nav-pill.act-classic {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-color: rgba(201,153,58,.45);
+    }
+    .nav-pill.act-jazz {
+      background: rgba(167,139,250,.15);
+      color: #a78bfa;
+      border-color: rgba(167,139,250,.45);
+    }
+    .nav-pill.act-pop {
+      background: rgba(244,114,182,.15);
+      color: #f472b6;
+      border-color: rgba(244,114,182,.45);
+    }
+    .nav-pill.act-easy {
+      background: rgba(45,212,191,.14);
+      color: #2dd4bf;
+      border-color: rgba(45,212,191,.4);
+    }
+    .nav-pill.act-news {
+      background: rgba(251,146,60,.14);
+      color: #fb923c;
+      border-color: rgba(251,146,60,.4);
+    }
+
+    /* section scroll offset (set by JS) */
+    .section { scroll-margin-top: 130px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="h-icon">🎼</div>
+  <div>
+    <h1>클래식 · 재즈 · 팝 라디오</h1>
+    <p>실시간 라이브 스트리밍</p>
+  </div>
+</header>
+
+<!-- ── NAV BAR ── -->
+<nav id="nav-bar">
+  <button class="nav-pill" data-sec="sec-kr"         data-cat="classic">🇰🇷 국내</button>
+  <button class="nav-pill" data-sec="sec-intl"       data-cat="classic">🌐 해외 클래식</button>
+  <button class="nav-pill" data-sec="sec-jazz-hi"    data-cat="jazz">🎷 재즈 명품</button>
+  <button class="nav-pill" data-sec="sec-jazz-lo"    data-cat="jazz">🎷 재즈 힐링</button>
+  <button class="nav-pill" data-sec="sec-pop-now"    data-cat="pop">🎵 팝 최신</button>
+  <button class="nav-pill" data-sec="sec-pop-retro"  data-cat="pop">🎵 팝 레트로</button>
+  <button class="nav-pill" data-sec="sec-pop-hi"     data-cat="pop">🎵 팝 하이파이</button>
+  <button class="nav-pill" data-sec="sec-easy-cls"   data-cat="easy">🎹 이지리스닝</button>
+  <button class="nav-pill" data-sec="sec-easy-piano" data-cat="easy">🎹 피아노&amp;기타</button>
+  <button class="nav-pill" data-sec="sec-easy-lounge" data-cat="easy">🎹 라운지</button>
+  <button class="nav-pill" data-sec="sec-news-global" data-cat="news">📈 글로벌 경제</button>
+  <button class="nav-pill" data-sec="sec-news-kr"     data-cat="news">📈 국내 경제/시사</button>
+</nav>
+
+<div class="section" id="sec-kr">
+  <div class="section-label">🇰🇷 국내 방송</div>
+  <div class="station-list" id="list-kr"></div>
+</div>
+
+<div class="section" id="sec-intl">
+  <div class="section-label">🌐 해외 클래식</div>
+  <div class="station-list" id="list-intl"></div>
+</div>
+
+<div class="section" id="sec-jazz-hi">
+  <div class="section-label">🎷 재즈 — 하이엔드 &amp; 공영</div>
+  <div class="station-list" id="list-jazz-hi"></div>
+</div>
+
+<div class="section" id="sec-jazz-lo">
+  <div class="section-label">🎷 재즈 — 힐링 &amp; 라운지</div>
+  <div class="station-list" id="list-jazz-lo"></div>
+</div>
+
+<div class="section" id="sec-pop-now">
+  <div class="section-label">🎵 팝 — 최신 &amp; 탑 40</div>
+  <div class="station-list" id="list-pop-now"></div>
+</div>
+
+<div class="section" id="sec-pop-retro">
+  <div class="section-label">🎵 팝 — 8090 레트로 &amp; 클래식</div>
+  <div class="station-list" id="list-pop-retro"></div>
+</div>
+
+<div class="section" id="sec-pop-hi">
+  <div class="section-label">🎵 팝 — 하이파이 &amp; 오디오필</div>
+  <div class="station-list" id="list-pop-hi"></div>
+</div>
+
+<div class="section" id="sec-easy-cls">
+  <div class="section-label">🎹 경음악 — 이지리스닝 명곡</div>
+  <div class="station-list" id="list-easy-cls"></div>
+</div>
+
+<div class="section" id="sec-easy-piano">
+  <div class="section-label">🎹 경음악 — 피아노 &amp; 어쿠스틱 기타</div>
+  <div class="station-list" id="list-easy-piano"></div>
+</div>
+
+<div class="section" id="sec-easy-lounge">
+  <div class="section-label">🎹 경음악 — 라운지 &amp; 미드템포</div>
+  <div class="station-list" id="list-easy-lounge"></div>
+</div>
+
+<div class="section" id="sec-news-global">
+  <div class="section-label">📈 경제뉴스 — 글로벌 금융</div>
+  <div class="station-list" id="list-news-global"></div>
+</div>
+
+<div class="section" id="sec-news-kr">
+  <div class="section-label">📈 경제뉴스 — 국내 경제/시사</div>
+  <div class="station-list" id="list-news-kr"></div>
+</div>
+
+<div class="tip">
+  <h3>💡 이용 안내</h3>
+  <p>행을 탭하면 스트리밍이 시작되며, 화면을 꺼도 계속 재생됩니다.<br>
+     잠금 화면 · 제어 센터에서 재생/일시정지를 제어할 수 있습니다.</p>
+  <p>📌 홈 화면에 추가(공유 → 홈 화면에 추가)하면 백그라운드 재생이 더욱 안정적입니다.</p>
+</div>
+
+<!-- ── PLAYER BAR ── -->
+<div id="player-bar">
+  <div class="pb-art" id="pb-art">🎵</div>
+  <div class="pb-info">
+    <div class="pb-name"   id="pb-name">—</div>
+    <div class="pb-sub"    id="pb-sub"></div>
+    <div class="pb-status" id="pb-status"></div>
+  </div>
+  <div class="pb-controls">
+    <button class="pb-btn primary" id="btn-pp"   onclick="togglePlay()">⏸</button>
+    <button class="pb-btn"         id="btn-stop" onclick="stopAll()">⏹</button>
+  </div>
+</div>
+
+<!-- iOS requires playsinline for inline (non-fullscreen) playback -->
+<audio id="audio" playsinline preload="none"></audio>
+
+<script>
+/* ------------------------------------------------------------------ */
+/* Stream data                                                          */
+/* ------------------------------------------------------------------ */
+const STREAMS = [
+  {
+    id:'kbs', group:'kr',
+    flag:'🇰🇷', name:'KBS 클래식 FM', sub:'1FM · 93.1 MHz',
+    quality:'AAC', tags:['클래식','오케스트라'],
+    url:'http://serpent0.duckdns.org:8088/kbsfm',
+    note:'⚠ 비공식 프록시'
+  },
+  {
+    id:'cbs', group:'kr',
+    flag:'🇰🇷', name:'CBS 음악FM', sub:'93.9 MHz · 밤 클래식 편성',
+    quality:'HLS', tags:['팝/클래식'],
+    url:'http://aac.cbs.co.kr/cbs939/_definst_/cbs939.stream/playlist.m3u8',
+    note:'⚠ 토큰 만료 가능'
+  },
+  {
+    id:'bbc3hi', group:'intl',
+    flag:'🇬🇧', name:'BBC Radio 3', sub:'영국 공영 클래식 · 최고음질',
+    quality:'320k', tags:['클래식','오케스트라','오페라'],
+    url:'http://as-hls-ww-live.akamaized.net/pool_23461179/live/ww/bbc_radio_three/bbc_radio_three.isml/bbc_radio_three-audio=320000.norewind.m3u8'
+  },
+  {
+    id:'bbc3lo', group:'intl',
+    flag:'🇬🇧', name:'BBC Radio 3', sub:'영국 공영 클래식 · 표준음질',
+    quality:'128k', tags:['클래식'],
+    url:'https://as-hls-ww.live.cf.md.bbci.co.uk/pool_904/live/ww/bbc_radio_three/bbc_radio_three.isml/bbc_radio_three-audio%3d128000.norewind.m3u8'
+  },
+  {
+    id:'linn', group:'intl',
+    flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', name:'Linn Classical', sub:'스코틀랜드 하이엔드 오디오',
+    quality:'320k', tags:['클래식','하이파이'],
+    url:'http://stream.linnrecords.com/stream1'
+  },
+  {
+    id:'calm', group:'intl',
+    flag:'🌍', name:'Calm Radio Classical', sub:'글로벌 힐링 클래식',
+    quality:'MP3', tags:['힐링','앰비언트'],
+    url:'http://streams.calmradio.com/api/1005/128/stream'
+  },
+  {
+    id:'venetian', group:'intl',
+    flag:'🇮🇹', name:'Venetian Classical', sub:'이탈리아 베네치아',
+    quality:'MP3', tags:['클래식','이탈리아'],
+    url:'http://174.36.206.197:8000/stream'
+  },
+  /* ── JAZZ hi ── */
+  {
+    id:'linn-jazz', group:'jazz-hi',
+    flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', name:'Linn Jazz', sub:'스코틀랜드 하이엔드 오디오',
+    quality:'320k', tags:['재즈','하이파이','올라운더'],
+    url:'http://stream.linnrecords.com/stream2'
+  },
+  {
+    id:'wbgo-mp3', group:'jazz-hi',
+    flag:'🇺🇸', name:'WBGO Jazz 88.3 FM', sub:'뉴욕/뉴저지 공영 재즈 · 표준음질',
+    quality:'128k', tags:['재즈','전통','라이브'],
+    url:'https://wbgo.streamguys1.com/wbgo128'
+  },
+  {
+    id:'wbgo-aac', group:'jazz-hi',
+    flag:'🇺🇸', name:'WBGO Jazz 88.3 FM', sub:'뉴욕/뉴저지 공영 재즈 · AAC',
+    quality:'AAC', tags:['재즈','전통'],
+    url:'https://wbgo.streamguys1.com/wbgoaac'
+  },
+  {
+    id:'tsf', group:'jazz-hi',
+    flag:'🇫🇷', name:'TSF Jazz', sub:'파리 프랑스 재즈 전문 방송',
+    quality:'128k', tags:['재즈','프렌치','감성'],
+    url:'http://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3'
+  },
+  {
+    id:'rsj-aac', group:'jazz-hi',
+    flag:'🇨🇭', name:'Radio Swiss Jazz', sub:'스위스 공영 · 정통 &amp; 모던 재즈 · AAC',
+    quality:'128k', tags:['재즈','모던','광고없음'],
+    url:'https://stream.srg-ssr.ch/m/rsj/aac_128'
+  },
+  {
+    id:'rsj-mp3', group:'jazz-hi',
+    flag:'🇨🇭', name:'Radio Swiss Jazz', sub:'스위스 공영 · 정통 &amp; 모던 재즈 · MP3',
+    quality:'128k', tags:['재즈','모던'],
+    url:'https://stream.srg-ssr.ch/m/rsj/mp3_128'
+  },
+  {
+    id:'rsmj', group:'jazz-hi',
+    flag:'🇨🇭', name:'Swiss Radio Modern Jazz', sub:'스위스 공영 · 현대 재즈',
+    quality:'AAC', tags:['재즈','컨템포러리'],
+    url:'https://stream.srg-ssr.ch/m/rsmj/aac_128'
+  },
+  /* ── JAZZ lo ── */
+  {
+    id:'jazzgroove', group:'jazz-lo',
+    flag:'🇺🇸', name:'Jazz Groove', sub:'샌프란시스코 · 쿨 재즈 &amp; 라운지',
+    quality:'128k', tags:['쿨재즈','라운지','BGM'],
+    url:'http://west-mp3-128.jazzgroove.org/stream'
+  },
+  {
+    id:'calm-jazz', group:'jazz-lo',
+    flag:'🌍', name:'Calm Radio Jazz Piano', sub:'재즈 피아노 전용 채널',
+    quality:'MP3', tags:['피아노','힐링','앰비언트'],
+    url:'http://streams.calmradio.com/api/1031/128/stream'
+  },
+  {
+    id:'audiophile-jazz', group:'jazz-lo',
+    flag:'🎷', name:'Audiophile Jazz', sub:'고음질 재즈 전문',
+    quality:'320k', tags:['재즈','하이파이','초고음질'],
+    url:'http://94.23.253.210:8014/live'
+  },
+  /* ── POP now ── */
+  {
+    id:'bbc1-hi', group:'pop-now',
+    flag:'🇬🇧', name:'BBC Radio 1', sub:'영국 공영 팝 · 최고음질',
+    quality:'320k', tags:['팝','UK차트','최신'],
+    url:'http://as-hls-ww-live.akamaized.net/pool_23461179/live/ww/bbc_radio_one/bbc_radio_one.isml/bbc_radio_one-audio=320000.norewind.m3u8'
+  },
+  {
+    id:'bbc1-lo', group:'pop-now',
+    flag:'🇬🇧', name:'BBC Radio 1', sub:'영국 공영 팝 · 표준음질',
+    quality:'128k', tags:['팝','UK차트'],
+    url:'https://as-hls-ww.live.cf.md.bbci.co.uk/pool_904/live/ww/bbc_radio_one/bbc_radio_one.isml/bbc_radio_one-audio%3d128000.norewind.m3u8'
+  },
+  {
+    id:'capital', group:'pop-now',
+    flag:'🇬🇧', name:'Capital FM', sub:'런던 · 메인스트림 팝 · 빌보드 히트',
+    quality:'128k', tags:['팝','탑40','히트'],
+    url:'http://icecast.bwpcdn.com/capital.mp3'
+  },
+  {
+    id:'kiisfm', group:'pop-now',
+    flag:'🇺🇸', name:'KIIS FM 102.7', sub:'로스앤젤레스 · 미국 탑 40 팝',
+    quality:'MP3', tags:['팝','탑40','US차트'],
+    url:'https://stream.revma.ihrhls.com/v1/auth/playlist/active?channelId=185&streamType=mp3'
+  },
+  /* ── POP retro ── */
+  {
+    id:'bbc2', group:'pop-retro',
+    flag:'🇬🇧', name:'BBC Radio 2', sub:'영국 공영 · 성인 팝 &amp; 올디스 · 최고음질',
+    quality:'320k', tags:['클래식팝','소프트록','올디스'],
+    url:'http://as-hls-ww-live.akamaized.net/pool_23461179/live/ww/bbc_radio_two/bbc_radio_two.isml/bbc_radio_two-audio=320000.norewind.m3u8'
+  },
+  {
+    id:'rsp-aac', group:'pop-retro',
+    flag:'🇨🇭', name:'Radio Swiss Pop', sub:'스위스 공영 · 8090~현재 팝 · AAC · 광고없음',
+    quality:'128k', tags:['팝','BGM','광고없음'],
+    url:'https://stream.srg-ssr.ch/m/rsp/aac_128'
+  },
+  {
+    id:'rsp-mp3', group:'pop-retro',
+    flag:'🇨🇭', name:'Radio Swiss Pop', sub:'스위스 공영 · 8090~현재 팝 · MP3',
+    quality:'128k', tags:['팝','BGM'],
+    url:'https://stream.srg-ssr.ch/m/rsp/mp3_128'
+  },
+  /* ── POP hi ── */
+  {
+    id:'linn-pop', group:'pop-hi',
+    flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', name:'Linn Rock &amp; Pop', sub:'스코틀랜드 하이엔드 · 팝/록',
+    quality:'320k', tags:['팝','록','하이파이'],
+    url:'http://stream.linnrecords.com/stream3'
+  },
+  {
+    id:'audiophile-pop', group:'pop-hi',
+    flag:'🎵', name:'Audiophile Baroque Pop &amp; Rock', sub:'유럽 고음질 팝/록 전문',
+    quality:'320k', tags:['팝','록','초고음질'],
+    url:'http://94.23.253.210:8012/live'
+  },
+  /* ── EASY LISTENING classic ── */
+  {
+    id:'beautiful-inst', group:'easy-cls',
+    flag:'🎼', name:'Beautiful Instrumentals', sub:'글로벌 이지리스닝 · 폴 모리아 스타일',
+    quality:'128k', tags:['경음악','오케스트라','BGM'],
+    url:'http://streaming.radionomy.com/BeautifulInstrumentals'
+  },
+  {
+    id:'calm-easy', group:'easy-cls',
+    flag:'🌍', name:'Calm Radio – Easy Listening', sub:'미국 힐링 전문 · 차분한 악기 연주',
+    quality:'MP3', tags:['경음악','힐링','스트레스완화'],
+    url:'http://streams.calmradio.com/api/1012/128/stream'
+  },
+  {
+    id:'plenitude', group:'easy-cls',
+    flag:'🇫🇷', name:'Radio Plénitude', sub:'프랑스 · 피아노/플루트/하프 어쿠스틱',
+    quality:'128k', tags:['경음악','명상','웰빙'],
+    url:'http://codeanywhere.net:8000/stream'
+  },
+  /* ── EASY LISTENING piano ── */
+  {
+    id:'calm-piano', group:'easy-piano',
+    flag:'🌍', name:'Calm Radio – Solo Piano', sub:'독주 피아노 전문 · 집중/독서 BGM',
+    quality:'MP3', tags:['피아노','뉴에이지','집중'],
+    url:'http://streams.calmradio.com/api/1011/128/stream'
+  },
+  {
+    id:'acoustic-guitar', group:'easy-piano',
+    flag:'🎸', name:'Acoustic Guitar Instrumental', sub:'핑거스타일 기타 연주 · 카페 분위기',
+    quality:'128k', tags:['기타','어쿠스틱','카페'],
+    url:'http://94.23.253.210:8018/live'
+  },
+  /* ── EASY LISTENING lounge ── */
+  {
+    id:'costa-inst', group:'easy-lounge',
+    flag:'🇪🇸', name:'Costa Del Mar – Instrumental', sub:'이비자 · 세련된 칠아웃 &amp; 라운지',
+    quality:'128k', tags:['라운지','칠아웃','고급'],
+    url:'http://stream.costadelmar-radio.com/instrumental.mp3'
+  },
+  {
+    id:'swiss-lounge', group:'easy-lounge',
+    flag:'🇨🇭', name:'Swiss Radio – Classic Lounge', sub:'스위스 공영 · 광고없음 · 라운지 재즈 기반',
+    quality:'AAC', tags:['라운지','뉴에이지','광고없음'],
+    url:'https://stream.srg-ssr.ch/m/rsj/aac_128'
+  },
+  /* ── ECONOMIC NEWS global ── */
+  {
+    id:'bloomberg-uk', group:'news-global',
+    flag:'🇬🇧', name:'Bloomberg Radio', sub:'UK/유럽 피드 · 글로벌 금융 시황',
+    quality:'MP3', tags:['경제','금융','블룸버그'],
+    url:'https://stream.revma.ihrhls.com/v1/auth/playlist/active?channelId=6143&streamType=mp3'
+  },
+  {
+    id:'bloomberg-us', group:'news-global',
+    flag:'🇺🇸', name:'Bloomberg Radio', sub:'US/뉴욕 피드 · 미국 증시 실황',
+    quality:'MP3', tags:['경제','월스트리트','Fed'],
+    url:'http://lsn.to/BLM',
+    note:'⚠ 리다이렉트 링크'
+  },
+  /* ── ECONOMIC NEWS Korea ── */
+  {
+    id:'ytn-radio', group:'news-kr',
+    flag:'🇰🇷', name:'YTN 라디오', sub:'24시간 보도 · 출퇴근 경제 시사',
+    quality:'HLS', tags:['뉴스','경제브리핑','시사'],
+    url:'http://ytnradio.livecdn.co.kr/ytnradio/_definst_/ytnradio.stream/playlist.m3u8'
+  },
+  {
+    id:'yonhap-tv', group:'news-kr',
+    flag:'🇰🇷', name:'연합뉴스TV', sub:'금융·거시경제 속보 TV 오디오',
+    quality:'HLS', tags:['뉴스','속보','경제'],
+    url:'https://wms211-kortv.akamaized.net/a_live/34402987/smil:20ch211.smil/master.m3u8'
+  },
+  {
+    id:'cbs-std', group:'news-kr',
+    flag:'🇰🇷', name:'CBS 표준FM', sub:'98.1 MHz · 오전 경제/시사 브리핑',
+    quality:'HLS', tags:['시사','경제브리핑','아침'],
+    url:'http://aac.cbs.co.kr/cbs981/_definst_/cbs981.stream/playlist.m3u8',
+    note:'⚠ 토큰 만료 가능'
+  }
+];
+
+/* ------------------------------------------------------------------ */
+/* State                                                                */
+/* ------------------------------------------------------------------ */
+const audio = document.getElementById('audio');
+let currentId = null;
+let state = 'idle'; // idle | loading | playing | paused | error
+
+/* ------------------------------------------------------------------ */
+/* Render                                                               */
+/* ------------------------------------------------------------------ */
+function renderStations() {
+  ['kr','intl','jazz-hi','jazz-lo','pop-now','pop-retro','pop-hi','easy-cls','easy-piano','easy-lounge','news-global','news-kr'].forEach(group => {
+    const container = document.getElementById('list-' + group);
+    STREAMS.filter(s => s.group === group).forEach(s => {
+      const el = document.createElement('div');
+      el.className = 'station';
+      el.id = 'station-' + s.id;
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-label', s.name + ' 재생');
+      el.onclick = () => playSt(s);
+      el.onkeydown = e => (e.key === 'Enter' || e.key === ' ') && playSt(s);
+      el.innerHTML =
+        `<div class="s-flag">${s.flag}</div>` +
+        `<div class="s-info">` +
+          `<div class="s-name">${s.name}</div>` +
+          `<div class="s-sub">${s.sub}</div>` +
+          `<div class="s-tags">` +
+            s.tags.map(t => `<span class="tag">${t}</span>`).join('') +
+            (s.note ? `<span class="s-note">${s.note}</span>` : '') +
+          `</div>` +
+        `</div>` +
+        `<div class="s-right">` +
+          `<span class="q-badge">${s.quality}</span>` +
+          `<div class="play-icon" id="pi-${s.id}">▶</div>` +
+        `</div>`;
+      container.appendChild(el);
+    });
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Play icon helpers                                                    */
+/* ------------------------------------------------------------------ */
+const EQ   = `<div class="eq"><span></span><span></span><span></span><span></span></div>`;
+const SPIN  = `<div class="spinner"></div>`;
+
+function setStationState(id, cls, iconHtml) {
+  const el = document.getElementById('station-' + id);
+  const pi = document.getElementById('pi-' + id);
+  if (!el || !pi) return;
+  el.className = 'station' + (cls ? ' ' + cls : '');
+  pi.innerHTML  = iconHtml;
+}
+
+/* ------------------------------------------------------------------ */
+/* Core play logic                                                      */
+/* ------------------------------------------------------------------ */
+function playSt(s) {
+  // Same station tapped → toggle
+  if (currentId === s.id) { togglePlay(); return; }
+
+  // Clear previous
+  if (currentId) setStationState(currentId, '', '▶');
+
+  currentId = s.id;
+  setStationState(s.id, 'loading', SPIN);
+
+  // Player bar
+  document.getElementById('pb-art').textContent  = s.flag;
+  document.getElementById('pb-name').textContent = s.name;
+  document.getElementById('pb-sub').textContent  = s.sub;
+  setPlayerStatus('loading', '⏳ 연결 중…');
+  document.getElementById('btn-pp').textContent = '⏸';
+  document.getElementById('player-bar').classList.add('show');
+
+  // Audio
+  audio.src = s.url;
+  audio.load();
+  audio.play().catch(err => {
+    setPlayerStatus('error', '❌ 재생 실패');
+    setStationState(s.id, 'errored', '✕');
+  });
+
+  // Media Session (lock screen controls + artwork)
+  if ('mediaSession' in navigator) {
+    const artwork = makeArtwork(s.flag);
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title:  s.name,
+      artist: s.sub,
+      album:  '클래식 라디오 🎼',
+      artwork: artwork ? [{ src: artwork, sizes: '256x256', type: 'image/png' }] : []
+    });
+    navigator.mediaSession.setActionHandler('play',  () => audio.play());
+    navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+    navigator.mediaSession.setActionHandler('stop',  stopAll);
+    // Disable seek for live radio
+    navigator.mediaSession.setActionHandler('seekbackward', null);
+    navigator.mediaSession.setActionHandler('seekforward',  null);
+    navigator.mediaSession.setActionHandler('previoustrack', null);
+    navigator.mediaSession.setActionHandler('nexttrack', playNextStation);
+  }
+}
+
+function togglePlay() {
+  if (!currentId) return;
+  if (audio.paused) {
+    audio.play();
+    document.getElementById('btn-pp').textContent = '⏸';
+  } else {
+    audio.pause();
+    document.getElementById('btn-pp').textContent = '▶';
+    setStationState(currentId, '', EQ); // keep paused look quiet
+    setPlayerStatus('', '⏸ 일시정지');
+  }
+}
+
+function stopAll() {
+  if (currentId) {
+    setStationState(currentId, '', '▶');
+    currentId = null;
+  }
+  audio.pause();
+  audio.src = '';
+  document.getElementById('player-bar').classList.remove('show');
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+}
+
+function playNextStation() {
+  const idx  = STREAMS.findIndex(s => s.id === currentId);
+  const next = STREAMS[(idx + 1) % STREAMS.length];
+  playSt(next);
+}
+
+/* ------------------------------------------------------------------ */
+/* Player status                                                        */
+/* ------------------------------------------------------------------ */
+function setPlayerStatus(cls, html) {
+  const el = document.getElementById('pb-status');
+  el.className = 'pb-status' + (cls ? ' s-' + cls : '');
+  if (cls === 'playing') {
+    el.innerHTML = EQ + ' 재생 중';
+  } else if (cls === 'loading') {
+    el.innerHTML = SPIN + ' 연결 중…';
+  } else {
+    el.textContent = html || '';
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Audio events                                                         */
+/* ------------------------------------------------------------------ */
+audio.addEventListener('playing', () => {
+  setPlayerStatus('playing', '');
+  document.getElementById('btn-pp').textContent = '⏸';
+  if (currentId) setStationState(currentId, 'playing', EQ);
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+});
+
+audio.addEventListener('waiting', () => {
+  setPlayerStatus('loading', '⏳ 버퍼링…');
+  if (currentId) setStationState(currentId, 'loading', SPIN);
+});
+
+audio.addEventListener('stalled', () => {
+  setPlayerStatus('loading', '⏳ 연결 중…');
+  if (currentId) setStationState(currentId, 'loading', SPIN);
+});
+
+audio.addEventListener('pause', () => {
+  document.getElementById('btn-pp').textContent = '▶';
+  if (currentId) setStationState(currentId, '', '▶');
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+});
+
+audio.addEventListener('error', () => {
+  const CODE_MSG = ['','미지원 형식','네트워크 오류','디코드 오류','재생 불가'];
+  const code = audio.error ? audio.error.code : 0;
+  setPlayerStatus('error', '❌ ' + (CODE_MSG[code] || '재생 오류'));
+  document.getElementById('btn-pp').textContent = '▶';
+  if (currentId) setStationState(currentId, 'errored', '✕');
+});
+
+/* ------------------------------------------------------------------ */
+/* Canvas artwork (flag emoji → PNG for lock screen)                   */
+/* ------------------------------------------------------------------ */
+function makeArtwork(flag) {
+  try {
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 256, 256);
+    g.addColorStop(0, '#1a1a2e');
+    g.addColorStop(1, '#0f0f1a');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.roundRect(0, 0, 256, 256, 36);
+    ctx.fill();
+    ctx.font = '110px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(flag, 128, 132);
+    return c.toDataURL('image/png');
+  } catch(e) { return null; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Nav bar                                                              */
+/* ------------------------------------------------------------------ */
+(function initNav() {
+  const header  = document.querySelector('header');
+  const navBar  = document.getElementById('nav-bar');
+  const pills   = Array.from(navBar.querySelectorAll('.nav-pill'));
+  const ACT     = { classic:'act-classic', jazz:'act-jazz', pop:'act-pop', easy:'act-easy', news:'act-news' };
+
+  // Position nav bar flush below sticky header
+  function positionNav() {
+    const h = header.offsetHeight;
+    navBar.style.top = h + 'px';
+    // Give each section enough top margin so it clears both sticky bars
+    const offset = h + navBar.offsetHeight + 8;
+    document.querySelectorAll('.section').forEach(s => {
+      s.style.scrollMarginTop = offset + 'px';
+    });
+  }
+  positionNav();
+  window.addEventListener('resize', positionNav);
+
+  // Click → smooth scroll to target section
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const target = document.getElementById(pill.dataset.sec);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // IntersectionObserver → highlight pill matching visible section
+  let activeSec = null;
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) activeSec = entry.target.id;
+    });
+    const pill = pills.find(p => p.dataset.sec === activeSec);
+    if (!pill) return;
+    pills.forEach(p => p.classList.remove('act-classic','act-jazz','act-pop'));
+    pill.classList.add(ACT[pill.dataset.cat] || '');
+    // Auto-scroll the pill into the nav bar view
+    pill.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+  }, {
+    rootMargin: '-10% 0px -80% 0px',
+    threshold: 0
+  });
+
+  document.querySelectorAll('.section').forEach(s => obs.observe(s));
+
+  // Highlight first pill on load
+  pills[0].classList.add(ACT[pills[0].dataset.cat]);
+})();
+
+/* ------------------------------------------------------------------ */
+/* Boot                                                                 */
+/* ------------------------------------------------------------------ */
+renderStations();
+</script>
+</body>
+</html>
