@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(curl -v -m 6 --max-filesize 16384 -H 'User-Agent: WinampMPEG/5.0' http://streaming.exclusive.radio/er/kpop/icecast.audio)"
+      "Bash(curl -v -m 6 --max-filesize 16384 -H 'User-Agent: WinampMPEG/5.0' http://streaming.exclusive.radio/er/kpop/icecast.audio)",
+      "Bash(chmod +x /Users/michaelauk/work/myPrj/liveStream/check_streams.sh)"
     ]
   }
 }

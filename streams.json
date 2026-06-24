@@ -1,0 +1,293 @@
+{
+  "version": "1.0",
+  "last_verified": "2026-06-24",
+  "check_method": "curl --max-filesize 65536 -H 'User-Agent: WinampMPEG/5.0' -H 'Icy-MetaData: 1' (exit 63 or HTTP 200 + bytes > 0 = OK)",
+  "streams": [
+    {
+      "id": "bbc3",
+      "group": "classic",
+      "flag": "🇬🇧",
+      "name": "BBC Radio 3",
+      "description": "영국 공영 클래식 · 320kbps HLS",
+      "quality": "320k",
+      "format": "HLS",
+      "tags": ["클래식", "오케스트라", "오페라"],
+      "url": "http://as-hls-ww-live.akamaized.net/pool_23461179/live/ww/bbc_radio_three/bbc_radio_three.isml/bbc_radio_three-audio=320000.norewind.m3u8"
+    },
+    {
+      "id": "france-musique",
+      "group": "classic",
+      "flag": "🇫🇷",
+      "name": "France Musique",
+      "description": "프랑스 공영 클래식 · HLS",
+      "quality": "HLS",
+      "format": "HLS",
+      "tags": ["클래식", "오페라", "현대음악"],
+      "url": "https://stream.radiofrance.fr/francemusique/francemusique.m3u8"
+    },
+    {
+      "id": "rsc-mp3",
+      "group": "classic",
+      "flag": "🇨🇭",
+      "name": "Radio Swiss Classic",
+      "description": "스위스 공영 · MP3 128k · 광고없음",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["클래식", "광고없음", "BGM"],
+      "url": "https://stream.srg-ssr.ch/m/rsc_de/mp3_128"
+    },
+    {
+      "id": "rsc-aac",
+      "group": "classic",
+      "flag": "🇨🇭",
+      "name": "Radio Swiss Classic",
+      "description": "스위스 공영 · AAC 96k · 광고없음",
+      "quality": "96k",
+      "format": "AAC",
+      "tags": ["클래식", "광고없음"],
+      "url": "https://stream.srg-ssr.ch/m/rsc_de/aacp_96"
+    },
+    {
+      "id": "nrk-klassisk",
+      "group": "classic",
+      "flag": "🇳🇴",
+      "name": "NRK Klassisk",
+      "description": "노르웨이 공영 클래식",
+      "quality": "MP3",
+      "format": "MP3",
+      "tags": ["클래식", "공영", "북유럽"],
+      "url": "https://lyd.nrk.no/nrk_radio_klassisk_mp3_h"
+    },
+    {
+      "id": "hotmix-kpop",
+      "group": "kpop",
+      "flag": "🇰🇷",
+      "name": "Hotmix K-Pop",
+      "description": "프랑스 운영 · 최신 아이돌 / 댄스 / 힙합 가요",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["K-Pop", "아이돌", "최신"],
+      "url": "https://streaming.hotmixradio.com/hotmix-k-pop-en-mp3"
+    },
+    {
+      "id": "rtl-kpop",
+      "group": "kpop",
+      "flag": "🇩🇪",
+      "name": "RTL Berlin K-Pop",
+      "description": "독일 RTL 공식 · 빌보드 K-Pop 차트 기반",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["K-Pop", "차트", "명곡"],
+      "url": "https://rtlberlin.streamabc.net/rtlb-kpop-mp3-128-8737982"
+    },
+    {
+      "id": "excl-kpop",
+      "group": "kpop",
+      "flag": "🌍",
+      "name": "Exclusive Radio K-Pop",
+      "description": "글로벌 · 광고없음 · 24시간 한국 가요 논스톱",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["K-Pop", "가요", "광고없음"],
+      "url": "http://streaming.exclusive.radio/er/kpop/icecast.audio"
+    },
+    {
+      "id": "tsf",
+      "group": "jazz",
+      "flag": "🇫🇷",
+      "name": "TSF Jazz",
+      "description": "파리 재즈 전문 방송 · 128kbps",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["재즈", "스윙", "보컬"],
+      "url": "https://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3"
+    },
+    {
+      "id": "rsj-mp3",
+      "group": "jazz",
+      "flag": "🇨🇭",
+      "name": "Radio Swiss Jazz",
+      "description": "스위스 공영 재즈 · MP3 128k · 광고없음",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["재즈", "모던", "광고없음"],
+      "url": "https://stream.srg-ssr.ch/m/rsj/mp3_128"
+    },
+    {
+      "id": "rsj-aac",
+      "group": "jazz",
+      "flag": "🇨🇭",
+      "name": "Radio Swiss Jazz",
+      "description": "스위스 공영 재즈 · AAC 96k · 광고없음",
+      "quality": "96k",
+      "format": "AAC",
+      "tags": ["재즈", "모던"],
+      "url": "https://stream.srg-ssr.ch/m/rsj/aacp_96"
+    },
+    {
+      "id": "nrk-jazz",
+      "group": "jazz",
+      "flag": "🇳🇴",
+      "name": "NRK Jazz",
+      "description": "노르웨이 공영 재즈",
+      "quality": "MP3",
+      "format": "MP3",
+      "tags": ["재즈", "공영", "북유럽"],
+      "url": "https://lyd.nrk.no/nrk_radio_jazz_mp3_h"
+    },
+    {
+      "id": "fip",
+      "group": "jazz",
+      "flag": "🇫🇷",
+      "name": "FIP Radio",
+      "description": "프랑스 공영 · 재즈 / 월드뮤직 / 소울",
+      "quality": "MP3",
+      "format": "MP3",
+      "tags": ["재즈", "월드", "소울", "에클렉틱"],
+      "url": "http://icecast.radiofrance.fr/fip-lofi.mp3"
+    },
+    {
+      "id": "rsp-mp3",
+      "group": "pop",
+      "flag": "🇨🇭",
+      "name": "Radio Swiss Pop",
+      "description": "스위스 공영 · 8090~현재 팝 · MP3 · 광고없음",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["팝", "BGM", "광고없음"],
+      "url": "https://stream.srg-ssr.ch/m/rsp/mp3_128"
+    },
+    {
+      "id": "rsp-aac",
+      "group": "pop",
+      "flag": "🇨🇭",
+      "name": "Radio Swiss Pop",
+      "description": "스위스 공영 · 8090~현재 팝 · AAC",
+      "quality": "96k",
+      "format": "AAC",
+      "tags": ["팝", "BGM"],
+      "url": "https://stream.srg-ssr.ch/m/rsp/aacp_96"
+    },
+    {
+      "id": "france-inter",
+      "group": "pop",
+      "flag": "🇫🇷",
+      "name": "France Inter",
+      "description": "프랑스 공영 · 팝 / 문화 / 시사",
+      "quality": "MP3",
+      "format": "MP3",
+      "tags": ["팝", "문화", "시사"],
+      "url": "http://icecast.radiofrance.fr/franceinter-lofi.mp3"
+    },
+    {
+      "id": "antenne-bayern",
+      "group": "pop",
+      "flag": "🇩🇪",
+      "name": "Antenne Bayern",
+      "description": "독일 최대 팝 라디오 · 최신 히트",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["팝", "히트", "독일"],
+      "url": "http://stream.antenne.de/antenne/stream/mp3"
+    },
+    {
+      "id": "antenne-love",
+      "group": "pop",
+      "flag": "🇩🇪",
+      "name": "Antenne Bayern – Love Songs",
+      "description": "독일 최대 그룹 · 전 세계 팝 발라드 명곡",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["팝발라드", "러브송"],
+      "url": "http://stream.antenne.de/lovesongs/stream/mp3"
+    },
+    {
+      "id": "181-heart",
+      "group": "pop",
+      "flag": "🇺🇸",
+      "name": "181.FM – The Heart",
+      "description": "팝 발라드 & 러브송 전용 · 올타임 레전드",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["팝발라드", "소프트팝", "러브송"],
+      "url": "https://listen.181fm.com/181-heart_128k.mp3"
+    },
+    {
+      "id": "181-lite90s",
+      "group": "pop",
+      "flag": "🇺🇸",
+      "name": "181.FM – Lite 90s",
+      "description": "90년대 감성 팝 발라드 · Soft R&B",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["90s팝", "발라드", "R&B"],
+      "url": "https://listen.181fm.com/181-lite90s_128k.mp3"
+    },
+    {
+      "id": "181-mellow",
+      "group": "pop",
+      "flag": "🇺🇸",
+      "name": "181.FM – Mellow Gold",
+      "description": "7080 소프트 팝 록 & 클래식 팝 발라드",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["7080팝", "소프트록", "이지리스닝"],
+      "url": "https://listen.181fm.com/181-mellow_128k.mp3"
+    },
+    {
+      "id": "capital-fm",
+      "group": "pop",
+      "flag": "🇬🇧",
+      "name": "Capital FM",
+      "description": "런던 · 최신 UK/글로벌 팝 차트",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["팝", "UK차트", "최신"],
+      "url": "https://media-ice.musicradio.com/CapitalMP3"
+    },
+    {
+      "id": "calm-easy",
+      "group": "easy",
+      "flag": "🌍",
+      "name": "Calm Radio Easy Listening",
+      "description": "힐링 악기 연주 · BGM / 집중 / 수면",
+      "quality": "MP3",
+      "format": "MP3",
+      "tags": ["경음악", "힐링", "집중", "수면"],
+      "url": "http://streams.calmradio.com/api/1012/128/stream"
+    },
+    {
+      "id": "npr",
+      "group": "news",
+      "flag": "🇺🇸",
+      "name": "NPR News",
+      "description": "미국 공영 라디오 · 경제 / 시사 / 정치",
+      "quality": "MP3",
+      "format": "MP3",
+      "tags": ["뉴스", "경제", "미국"],
+      "url": "https://npr-ice.streamguys1.com/live.mp3"
+    },
+    {
+      "id": "rfi",
+      "group": "news",
+      "flag": "🇫🇷",
+      "name": "RFI World",
+      "description": "프랑스 국제방송 · 글로벌 경제 / 시사",
+      "quality": "MP3",
+      "format": "MP3",
+      "tags": ["뉴스", "국제", "경제"],
+      "url": "http://live02.rfi.fr/rfimonde-64.mp3"
+    },
+    {
+      "id": "france-info",
+      "group": "news",
+      "flag": "🇫🇷",
+      "name": "France Info",
+      "description": "프랑스 공영 24시간 뉴스",
+      "quality": "MP3",
+      "format": "MP3",
+      "tags": ["뉴스", "속보", "시사"],
+      "url": "http://icecast.radiofrance.fr/franceinfo-lofi.mp3"
+    }
+  ]
+}
