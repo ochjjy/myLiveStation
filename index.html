@@ -31,6 +31,7 @@
       --pop-c:     #f472b6; --pop-d:     rgba(244,114,182,.14);
       --easy-c:    #2dd4bf; --easy-d:    rgba(45,212,191,.13);
       --news-c:    #fb923c; --news-d:    rgba(251,146,60,.13);
+      --kpop-c:    #e879f9; --kpop-d:    rgba(232,121,249,.14);
     }
 
     *, *::before, *::after {
@@ -96,6 +97,7 @@
     .pill.a-pop     { background: var(--pop-d);     color: var(--pop-c);     border-color: rgba(244,114,182,.4); }
     .pill.a-easy    { background: var(--easy-d);    color: var(--easy-c);    border-color: rgba(45,212,191,.38); }
     .pill.a-news    { background: var(--news-d);    color: var(--news-c);    border-color: rgba(251,146,60,.38); }
+    .pill.a-kpop    { background: var(--kpop-d);    color: var(--kpop-c);    border-color: rgba(232,121,249,.38); }
 
     /* ── SECTION ── */
     .sec { margin: 20px 0 0; scroll-margin-top: 120px; }
@@ -168,6 +170,7 @@
     .q-badge.pop     { color: var(--pop-c);     background: var(--pop-d); }
     .q-badge.easy    { color: var(--easy-c);    background: var(--easy-d); }
     .q-badge.news    { color: var(--news-c);    background: var(--news-d); }
+    .q-badge.kpop    { color: var(--kpop-c);    background: var(--kpop-d); }
 
     .play-btn {
       width: 30px; height: 30px; border-radius: 50%;
@@ -255,6 +258,7 @@
 </header>
 
 <nav id="nav-bar">
+  <button class="pill" data-sec="sec-kpop"    data-cat="kpop">🎤 K-Pop / 가요</button>
   <button class="pill" data-sec="sec-classic" data-cat="classic">🎼 클래식</button>
   <button class="pill" data-sec="sec-jazz"    data-cat="jazz">🎷 재즈</button>
   <button class="pill" data-sec="sec-pop"     data-cat="pop">🎵 팝</button>
@@ -262,6 +266,10 @@
   <button class="pill" data-sec="sec-news"    data-cat="news">📈 경제뉴스</button>
 </nav>
 
+<div class="sec" id="sec-kpop">
+  <div class="sec-label">🎤 K-Pop / 가요 <span id="cnt-kpop"></span></div>
+  <div class="slist" id="list-kpop"></div>
+</div>
 <div class="sec" id="sec-classic">
   <div class="sec-label">🎼 클래식 <span id="cnt-classic"></span></div>
   <div class="slist" id="list-classic"></div>
@@ -339,6 +347,25 @@ const STREAMS = [
     flag:'🇳🇴', name:'NRK Klassisk',      sub:'노르웨이 공영 클래식',
     q:'MP3',  tags:['클래식','공영','북유럽'],
     url:'https://lyd.nrk.no/nrk_radio_klassisk_mp3_h'
+  },
+  /* K-POP / 가요 */
+  {
+    id:'hotmix-kpop',  group:'kpop',
+    flag:'🇰🇷', name:'Hotmix K-Pop',       sub:'프랑스 운영 · 최신 아이돌 / 댄스 / 힙합 가요',
+    q:'128k', tags:['K-Pop','아이돌','최신'],
+    url:'https://streaming.hotmixradio.com/hotmix-k-pop-en-mp3'
+  },
+  {
+    id:'rtl-kpop',     group:'kpop',
+    flag:'🇩🇪', name:'RTL Berlin K-Pop',   sub:'독일 RTL 공식 · 빌보드 K-Pop 차트 기반',
+    q:'128k', tags:['K-Pop','차트','명곡'],
+    url:'https://rtlberlin.streamabc.net/rtlb-kpop-mp3-128-8737982'
+  },
+  {
+    id:'excl-kpop',    group:'kpop',
+    flag:'🌍', name:'Exclusive Radio K-Pop', sub:'글로벌 · 광고없음 · 24시간 한국 가요 논스톱',
+    q:'128k', tags:['K-Pop','가요','광고없음'],
+    url:'http://streaming.exclusive.radio/er/kpop/icecast.audio'
   },
   /* JAZZ */
   {
@@ -430,8 +457,8 @@ const STREAMS = [
   }
 ];
 
-const GROUPS = ['classic','jazz','pop','easy','news'];
-const CAT_ACT = { classic:'a-classic', jazz:'a-jazz', pop:'a-pop', easy:'a-easy', news:'a-news' };
+const GROUPS = ['kpop','classic','jazz','pop','easy','news'];
+const CAT_ACT = { kpop:'a-kpop', classic:'a-classic', jazz:'a-jazz', pop:'a-pop', easy:'a-easy', news:'a-news' };
 
 /* ── State ────────────────────────────────────────────────── */
 const audio = document.getElementById('audio');
