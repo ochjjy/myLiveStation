@@ -100,6 +100,9 @@ check_stream() {
 
   tmp_out=$(mktemp 2>/dev/null || echo "/tmp/sc_$$_${id}")
 
+  # set -e 환경에서 curl 비정상 exit(63 등)에 스크립트가 종료되지 않도록
+  # || true 없이 exit code를 정확히 캡처
+  set +e
   http_code=$(curl -sS -L \
     --connect-timeout "$CONNECT_TIMEOUT" \
     --max-time "$MAX_TIME" \
@@ -108,8 +111,9 @@ check_stream() {
     -H "Icy-MetaData: 1" \
     -o "$tmp_out" \
     -w "%{http_code}" \
-    "$url" 2>/dev/null) || true
+    "$url" 2>/dev/null)
   exit_c=$?
+  set -e
 
   # macOS: stat -f%z / Linux: stat -c%s
   bytes_recv=$(stat -f%z "$tmp_out" 2>/dev/null \

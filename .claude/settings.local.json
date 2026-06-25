@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(curl -v -m 6 --max-filesize 16384 -H 'User-Agent: WinampMPEG/5.0' http://streaming.exclusive.radio/er/kpop/icecast.audio)",
-      "Bash(chmod +x /Users/michaelauk/work/myPrj/liveStream/check_streams.sh)"
+      "Bash(chmod +x /Users/michaelauk/work/myPrj/liveStream/check_streams.sh)",
+      "Bash(curl -sv --max-time 8 --max-filesize 1 -H 'User-Agent: WinampMPEG/5.0' -H 'Icy-MetaData: 1' http://icecast.viasat.ch/absolut-relax.mp3)",
+      "Bash(curl -sv --max-time 6 --max-filesize 1 -H 'User-Agent: WinampMPEG/5.0' -H 'Icy-MetaData: 1' http://108.61.30.179:8000/stream)"
     ]
   }
 }

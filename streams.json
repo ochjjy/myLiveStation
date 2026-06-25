@@ -59,6 +59,50 @@
       "url": "https://lyd.nrk.no/nrk_radio_klassisk_mp3_h"
     },
     {
+      "id": "linn-classical",
+      "group": "classic",
+      "flag": "🇬🇧",
+      "name": "Linn Classical",
+      "description": "Linn 하이파이 운영 · 정통 클래식 및 실내악 · 320kbps · 광고없음",
+      "quality": "320k",
+      "format": "MP3",
+      "tags": ["클래식", "실내악", "독주", "광고없음", "하이파이"],
+      "url": "http://radio.linn.co.uk:8004/autodj"
+    },
+    {
+      "id": "klassik-bach",
+      "group": "classic",
+      "flag": "🇩🇪",
+      "name": "Klassik Radio – Pure Bach",
+      "description": "독일 · 바흐 하프시코드 · 첼로 독주 · 집중 / 명상",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["클래식", "바흐", "집중", "명상", "독주"],
+      "url": "http://stream.klassikradio.de/bach/mp3-128"
+    },
+    {
+      "id": "klassik-scores",
+      "group": "classic",
+      "flag": "🇩🇪",
+      "name": "Klassik Radio – Scores",
+      "description": "독일 · 한스 짐머·존 윌리엄스 등 할리우드 블록버스터 영화 OST 전문",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["클래식", "영화음악", "OST", "오케스트라"],
+      "url": "http://stream.klassikradio.de/movie/mp3-128"
+    },
+    {
+      "id": "allzic-soundtracks",
+      "group": "classic",
+      "flag": "🇫🇷",
+      "name": "Allzic Soundtracks",
+      "description": "프랑스 · 디즈니·할리우드·유럽 감성 영화 OST 전문 · 광고없음",
+      "quality": "128k",
+      "format": "MP3",
+      "tags": ["영화음악", "OST", "디즈니", "오케스트라", "광고없음"],
+      "url": "http://allzic19.ice.infomaniak.ch/allzic19.mp3"
+    },
+    {
       "id": "hotmix-kpop",
       "group": "kpop",
       "flag": "🇰🇷",
